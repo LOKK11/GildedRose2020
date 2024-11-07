@@ -146,6 +146,19 @@ public class GildedRoseTest {
 
 		//Assert quality has dropped to 0 as sellIn has reached 0
 		assertEquals("Failed quality for Backstage Passes", 0, quality);
+		
+		//Assert quality doesn't go above 50 with any sellIn value
+		inn.setItem(new Item("Backstage passes to a TAFKAL80ETC concert", 10, 49));
+		inn.oneDay();
+		items = inn.getItems();
+		quality = items.get(1).getQuality();
+		assertEquals("Failed quality for Backstage Passes", 50, quality);
+		inn.setItem(new Item("Backstage passes to a TAFKAL80ETC concert", 5, 48));
+		inn.oneDay();
+		items = inn.getItems();
+		quality = items.get(2).getQuality();
+		assertEquals("Failed quality for Backstage Passes", 50, quality);
+		
 	}
 
 	@Test
@@ -154,5 +167,32 @@ public class GildedRoseTest {
 		GildedRose.main(null);
 		//Assert that the main method runs without errors
 		assertTrue(true);
+	}
+
+	@Test
+	public void testLoop() {
+		//Test the loop in the updateQuality method
+		GildedRose inn = new GildedRose();
+		//Skip the loop completely
+		inn.oneDay();
+		//Assert that items list is empty
+		assertEquals("Failed loop in updateQuality", 0, inn.getItems().size());
+		//Add an item and simulate one day
+		inn.setItem(new Item("Test", 10, 10));
+		inn.oneDay();
+		//Assert that the loop has run once
+		assertEquals("Failed loop in updateQuality", 9, inn.getItems().get(0).getQuality());
+		//Add another item and simulate one day
+		inn.setItem(new Item("Test", 10, 10));
+		inn.oneDay();
+		//Assert that the loop has run twice
+		assertEquals("Failed loop in updateQuality", 9, inn.getItems().get(1).getQuality());
+		//Add 100 items and simulate one day
+		for (int i = 0; i < 100; i++) {
+			inn.setItem(new Item("Test", 10, 10));
+		}
+		inn.oneDay();
+		//Assert that the loop has run 102 times
+		assertEquals("Failed loop in updateQuality", 9, inn.getItems().get(101).getQuality());
 	}
 }
